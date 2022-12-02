@@ -1,0 +1,33 @@
+{
+    "schemaVersion": 1,
+    "id": "pvaddonsoundphysics",
+    "version": "${version}",
+    "name": "PV Addon Sound Physics",
+    "description": "",
+    "authors": [
+        "Plasmo"
+    ],
+    "contact": {
+        "homepage": "https://github.com/plasmoapp/plasmo-voice",
+        "sources": "https://github.com/plasmoapp/plasmo-voice",
+        "issues": "https://github.com/plasmoapp/plasmo-voice/issues"
+    },
+    "license": "MIT",
+    "icon": "assets/plasmovoice/soundphysics/icon.png",
+    "environment": "*",
+    "entrypoints": {
+        "client": [
+            "su.plo.voice.soundphysics.SoundPhysicsAddonFabric"
+        ]
+    },
+    "mixins": [
+    ],
+    "depends": {
+        "fabricloader": ">=0.14.8",
+        "plasmovoice": ">=2.0.0"
+    },
+    "recommends": {
+        "soundphysics": "*",
+        "sound_physics_remastered": "*"
+    }
+}

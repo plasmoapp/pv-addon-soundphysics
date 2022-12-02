@@ -1,0 +1,18 @@
+modLoader="javafml"
+loaderVersion="[36,)"
+license="MIT"
+issueTrackerURL="https://github.com/plasmoapp/plasmo-voice/issues"
+[[mods]]
+modId="pvaddonsoundphysics"
+version="${version}"
+displayName="PV Addon Sound Physics" #mandatory
+displayURL="https://github.com/plasmoapp/plasmo-voice"
+logoFile="icon.png" #optional
+authors="Apehum"
+description=""
+[[dependencies.pvaddonsoundphysics]]
+    modId="plasmovoice"
+    mandatory=true
+    versionRange="[2.0.0,)"
+    ordering="NONE"
+    side="CLIENT"
