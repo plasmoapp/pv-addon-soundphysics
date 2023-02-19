@@ -6,6 +6,7 @@ import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import su.plo.config.entry.BooleanConfigEntry;
 import su.plo.config.entry.DoubleConfigEntry;
+import su.plo.voice.api.addon.AddonScope;
 import su.plo.voice.api.addon.annotation.Addon;
 import su.plo.voice.api.client.PlasmoVoiceClient;
 import su.plo.voice.api.client.audio.capture.ClientActivation;
@@ -29,7 +30,7 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Map;
 
-@Addon(id = "soundphysics", name = "gui.plasmovoice.soundphysics", scope = Addon.Scope.CLIENT, version = "1.0.0", authors = {"Apehum"})
+@Addon(id = "soundphysics", name = "gui.plasmovoice.soundphysics", scope = AddonScope.CLIENT, version = "1.0.0", authors = {"Apehum"})
 public final class SoundPhysicsAddon {
 
     private static final Logger LOGGER = LogManager.getLogger();
