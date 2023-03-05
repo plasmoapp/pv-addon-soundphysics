@@ -53,9 +53,8 @@ subprojects {
         mavenCentral()
         mavenLocal()
 
-        maven {
-            url = uri("https://repo.plo.su")
-        }
+        maven("https://repo.plo.su")
+        maven("https://repo.essential.gg/repository/maven-public")
     }
 
     configurations {

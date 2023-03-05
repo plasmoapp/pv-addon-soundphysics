@@ -1,6 +1,8 @@
 package su.plo.voice.soundphysics;
 
 import com.google.common.collect.Maps;
+import gg.essential.universal.wrappers.UPlayer;
+import net.fabricmc.loader.impl.lib.sat4j.core.Vec;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -24,11 +26,13 @@ import su.plo.voice.api.client.event.audio.device.source.AlSourceClosedEvent;
 import su.plo.voice.api.client.event.audio.device.source.AlSourceWriteEvent;
 import su.plo.voice.api.event.EventSubscribe;
 import su.plo.voice.api.util.AudioUtil;
+import su.plo.voice.proto.data.pos.Pos3d;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.function.Supplier;
 
 @Addon(id = "soundphysics", name = "gui.plasmovoice.soundphysics", scope = AddonScope.CLIENT, version = "1.0.0", authors = {"Apehum"})
 public final class SoundPhysicsAddon {
@@ -37,6 +41,8 @@ public final class SoundPhysicsAddon {
 
     private final Map<AlSource, Long> lastCalculated = Maps.newConcurrentMap();
     private final Map<AlSource, float[]> lastPosition = Maps.newConcurrentMap();
+    private final Pos3d playerPosition = new Pos3d();
+    private final Pos3d lastPlayerPosition = new Pos3d();
 
     private PlasmoVoiceClient voiceClient;
     private AddonConfig config;
@@ -208,7 +214,7 @@ public final class SoundPhysicsAddon {
             if (alSource.getInt(0x202) == 1) return;
 
             long lastCalculated = this.lastCalculated.getOrDefault(alSource, 0L);
-            if (System.currentTimeMillis() - lastCalculated < 1_000L) return;
+            if (System.currentTimeMillis() - lastCalculated < 500L) return;
 
             float[] lastPosition = this.lastPosition.get(alSource);
 
@@ -246,6 +252,7 @@ public final class SoundPhysicsAddon {
                 );
 
                 this.lastPosition.put(alSource, position);
+                setPlayerPosition(lastPlayerPosition);
                 if (lastPosition != null) this.lastCalculated.put(alSource, System.currentTimeMillis());
             } catch (IllegalAccessException | InvocationTargetException e) {
                 e.printStackTrace();
@@ -254,7 +261,15 @@ public final class SoundPhysicsAddon {
     }
 
     private boolean evaluate(AlSource alSource, float[] lastPosition, float[] position) {
-        return lastPosition == null || !lastCalculated.containsKey(alSource) || distance(position, lastPosition) > 1;
+        return lastPosition == null ||
+                !lastCalculated.containsKey(alSource) ||
+                distance(position, lastPosition) > 1 ||
+                distancePlayerTraveled() > 1;
+    }
+
+    private double distancePlayerTraveled() {
+        setPlayerPosition(playerPosition);
+        return Math.sqrt(playerPosition.distanceSquared(lastPlayerPosition));
     }
 
     private double distance(float[] position1, float[] position2) {
@@ -265,6 +280,13 @@ public final class SoundPhysicsAddon {
         return Math.sqrt(d * d + e * e + f * f);
     }
 
+    private Pos3d setPlayerPosition(Pos3d position) {
+        position.setX(UPlayer.getPosX());
+        position.setY(UPlayer.getPosY());
+        position.setZ(UPlayer.getPosZ());
+
+        return position;
+    }
 
     private void onToggle(boolean enabled) {
         voiceClient.getDeviceManager().getDevices(DeviceType.OUTPUT).forEach((device) -> {
