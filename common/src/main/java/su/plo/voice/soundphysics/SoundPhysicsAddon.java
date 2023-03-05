@@ -55,9 +55,6 @@ public final class SoundPhysicsAddon {
     private BooleanConfigEntry microphoneReverbEnabledEntry;
     private DoubleConfigEntry microphoneReverbVolumeEntry;
 
-    public SoundPhysicsAddon() {
-    }
-
     @EventSubscribe
     public void onInitialize(@NotNull VoiceClientInitializedEvent event) {
         this.voiceClient = event.getClient();
@@ -207,6 +204,9 @@ public final class SoundPhysicsAddon {
 
         AlSource alSource = event.getSource();
         ((AlAudioDevice) alSource.getDevice()).runInContext(() -> {
+            // don't process relative sources
+            if (alSource.getInt(0x202) == 1) return;
+
             long lastCalculated = this.lastCalculated.getOrDefault(alSource, 0L);
             if (System.currentTimeMillis() - lastCalculated < 1_000L) return;
 
