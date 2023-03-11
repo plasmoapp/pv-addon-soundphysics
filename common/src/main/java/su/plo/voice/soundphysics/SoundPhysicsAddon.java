@@ -167,7 +167,7 @@ public final class SoundPhysicsAddon {
 
         if (voiceClient.getActivationManager().getActivations()
                 .stream()
-                .noneMatch(ClientActivation::isActivated)
+                .noneMatch(ClientActivation::isActive)
         ) return;
 
         boolean isStereo = event.getDevice().getFormat().get().getChannels() == 2;
