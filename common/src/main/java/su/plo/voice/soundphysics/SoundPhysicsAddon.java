@@ -163,14 +163,14 @@ public final class SoundPhysicsAddon {
 
     @EventSubscribe
     public void onAudioCapture(@NotNull AudioCaptureEvent event) {
-        if (!isEnabled() || !isMicrophoneReverbEnabled() || soundPhysicsReverb == null || !event.getDevice().getFormat().isPresent()) return;
+        if (!isEnabled() || !isMicrophoneReverbEnabled() || soundPhysicsReverb == null) return;
 
         if (voiceClient.getActivationManager().getActivations()
                 .stream()
                 .noneMatch(ClientActivation::isActive)
         ) return;
 
-        boolean isStereo = event.getDevice().getFormat().get().getChannels() == 2;
+        boolean isStereo = event.getDevice().getFormat().getChannels() == 2;
 
         if (loopbackSource != null && loopbackSource.isStereo() != isStereo) {
             loopbackSource.close();
@@ -209,7 +209,7 @@ public final class SoundPhysicsAddon {
         if (!isEnabled()) return;
 
         AlSource alSource = event.getSource();
-        ((AlAudioDevice) alSource.getDevice()).runInContext(() -> {
+        ((AlAudioDevice) alSource.getDevice()).runInContextAsync(() -> {
             // don't process relative sources
             if (alSource.getInt(0x202) == 1) return;
 
