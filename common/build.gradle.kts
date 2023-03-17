@@ -4,6 +4,7 @@ val fabricLoaderVersion: String by rootProject
 
 plugins {
     id("gg.essential.defaults")
+    id("su.plo.crowdin.plugin") version("1.0.0")
 }
 
 val common = registerStripReferencesAttribute("common") {
@@ -21,4 +22,16 @@ dependencies {
 architectury {
     common("fabric", "forge")
     injectInjectables = false
+}
+
+plasmoCrowdin {
+    projectId = "plasmo-voice-addons"
+    sourceFileName = "client/soundphysics.json"
+    resourceDir = "assets/pvaddonsoundphysics/lang"
+}
+
+tasks {
+    processResources {
+        dependsOn(plasmoCrowdinDownload)
+    }
 }
