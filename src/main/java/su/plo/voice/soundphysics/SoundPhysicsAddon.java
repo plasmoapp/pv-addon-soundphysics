@@ -1,14 +1,15 @@
 package su.plo.voice.soundphysics;
 
 import com.google.common.collect.Maps;
+import com.google.inject.Inject;
 import gg.essential.universal.wrappers.UPlayer;
-import net.fabricmc.loader.impl.lib.sat4j.core.Vec;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import su.plo.config.entry.BooleanConfigEntry;
 import su.plo.config.entry.DoubleConfigEntry;
-import su.plo.voice.api.addon.AddonScope;
+import su.plo.voice.api.addon.AddonInitializer;
+import su.plo.voice.api.addon.AddonLoaderScope;
 import su.plo.voice.api.addon.annotation.Addon;
 import su.plo.voice.api.client.PlasmoVoiceClient;
 import su.plo.voice.api.client.audio.capture.ClientActivation;
@@ -19,7 +20,6 @@ import su.plo.voice.api.client.audio.device.OutputDevice;
 import su.plo.voice.api.client.audio.device.source.AlSource;
 import su.plo.voice.api.client.audio.source.LoopbackSource;
 import su.plo.voice.api.client.config.addon.AddonConfig;
-import su.plo.voice.api.client.event.VoiceClientInitializedEvent;
 import su.plo.voice.api.client.event.audio.capture.AudioCaptureEvent;
 import su.plo.voice.api.client.event.audio.device.DeviceOpenEvent;
 import su.plo.voice.api.client.event.audio.device.source.AlSourceClosedEvent;
@@ -32,10 +32,15 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Map;
-import java.util.function.Supplier;
 
-@Addon(id = "soundphysics", name = "gui.plasmovoice.soundphysics", scope = AddonScope.CLIENT, version = "1.0.0", authors = {"Apehum"})
-public final class SoundPhysicsAddon {
+@Addon(
+        id = "pv-addon-soundphysics",
+        name = "gui.plasmovoice.soundphysics",
+        scope = AddonLoaderScope.CLIENT,
+        version = "1.0.0",
+        authors = {"Apehum"}
+)
+public final class SoundPhysicsAddon implements AddonInitializer {
 
     private static final Logger LOGGER = LogManager.getLogger();
 
@@ -44,6 +49,7 @@ public final class SoundPhysicsAddon {
     private final Pos3d playerPosition = new Pos3d();
     private final Pos3d lastPlayerPosition = new Pos3d();
 
+    @Inject
     private PlasmoVoiceClient voiceClient;
     private AddonConfig config;
 
@@ -61,10 +67,9 @@ public final class SoundPhysicsAddon {
     private BooleanConfigEntry microphoneReverbEnabledEntry;
     private DoubleConfigEntry microphoneReverbVolumeEntry;
 
-    @EventSubscribe
-    public void onInitialize(@NotNull VoiceClientInitializedEvent event) {
-        this.voiceClient = event.getClient();
 
+    @Override
+    public void onAddonInitialize() {
         try {
             // dependencies? nah
             // reflections? yep
@@ -209,7 +214,7 @@ public final class SoundPhysicsAddon {
         if (!isEnabled()) return;
 
         AlSource alSource = event.getSource();
-        ((AlAudioDevice) alSource.getDevice()).runInContextAsync(() -> {
+        alSource.getDevice().runInContextAsync(() -> {
             // don't process relative sources
             if (alSource.getInt(0x202) == 1) return;
 
@@ -263,8 +268,8 @@ public final class SoundPhysicsAddon {
     private boolean evaluate(AlSource alSource, float[] lastPosition, float[] position) {
         return lastPosition == null ||
                 !lastCalculated.containsKey(alSource) ||
-                distance(position, lastPosition) > 1 ||
-                distancePlayerTraveled() > 1;
+                distance(position, lastPosition) > 0.25 ||
+                distancePlayerTraveled() > 0.25;
     }
 
     private double distancePlayerTraveled() {
@@ -281,6 +286,8 @@ public final class SoundPhysicsAddon {
     }
 
     private Pos3d setPlayerPosition(Pos3d position) {
+        if (!UPlayer.hasPlayer()) return position;
+
         position.setX(UPlayer.getPosX());
         position.setY(UPlayer.getPosY());
         position.setZ(UPlayer.getPosZ());
