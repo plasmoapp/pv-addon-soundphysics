@@ -43,6 +43,6 @@ jobs:
     - name: Publish to GitHub
       uses: Apehum/mc-publish@v1.1
       with:
-        files-primary: build/merged/!(*-@(dev|sources|javadoc)).jar
+        files-primary: build/libs/!(*-@(dev|sources|javadoc)).jar
         github-token: ${{ secrets.GITHUB_TOKEN }}
         github-generate-changelog: false
