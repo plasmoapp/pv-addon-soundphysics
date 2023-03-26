@@ -28,11 +28,6 @@ jobs:
       with:
         arguments: build
 
-    - name: Build with Gradle
-      uses: gradle/gradle-build-action@v2
-      with:
-        arguments: mergeJars
-
     - name: Publish to Modrinth/CurseForge
       uses: Apehum/mc-publish@v1.1
       with:
