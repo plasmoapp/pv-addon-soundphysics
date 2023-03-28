@@ -128,6 +128,10 @@ public final class SoundPhysicsAddon implements AddonInitializer {
         );
         enabledEntry.addChangeListener(this::onToggle);
 
+        if (enabledEntry.value()) {
+            voiceClient.getConfig().getVoice().getSoundOcclusion().setDisabled(true);
+        }
+
         if (soundPhysicsReverb != null) {
             this.microphoneReverbEnabledEntry = config.addToggle(
                     "gui.plasmovoice.soundphysics.mic_reverb",
@@ -296,6 +300,8 @@ public final class SoundPhysicsAddon implements AddonInitializer {
     }
 
     private void onToggle(boolean enabled) {
+        voiceClient.getConfig().getVoice().getSoundOcclusion().setDisabled(enabled);
+
         voiceClient.getDeviceManager().getDevices(DeviceType.OUTPUT).forEach((device) -> {
             if (device instanceof AlAudioDevice) {
                 try {
