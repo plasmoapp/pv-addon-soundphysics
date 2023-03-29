@@ -11,6 +11,7 @@ import su.plo.config.entry.DoubleConfigEntry;
 import su.plo.voice.api.addon.AddonInitializer;
 import su.plo.voice.api.addon.AddonLoaderScope;
 import su.plo.voice.api.addon.annotation.Addon;
+import su.plo.voice.api.addon.annotation.Dependency;
 import su.plo.voice.api.client.PlasmoVoiceClient;
 import su.plo.voice.api.client.audio.capture.ClientActivation;
 import su.plo.voice.api.client.audio.device.AlAudioDevice;
@@ -38,7 +39,12 @@ import java.util.Map;
         name = "gui.plasmovoice.soundphysics",
         scope = AddonLoaderScope.CLIENT,
         version = "1.0.0",
-        authors = {"Apehum"}
+        authors = {"Apehum"},
+        dependencies = {
+                @Dependency(
+                        id = "sound-physics-remastered"
+                )
+        }
 )
 public final class SoundPhysicsAddon implements AddonInitializer {
 
