@@ -41,9 +41,7 @@ import java.util.Map;
         version = "1.0.0",
         authors = {"Apehum"},
         dependencies = {
-                @Dependency(
-                        id = "sound-physics-remastered"
-                )
+                @Dependency(id = "sound_physics_remastered", mod = true)
         }
 )
 public final class SoundPhysicsAddon implements AddonInitializer {
