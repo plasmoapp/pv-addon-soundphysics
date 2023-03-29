@@ -23,5 +23,5 @@ With this add-on Plasmo Voice will be affected by Sound Physics.
 Both Fabric and Forge are supported. The same add-on file works on both platforms.
 
 1. Install [Plasmo Voice](https://modrinth.com/plugin/plasmo-voice) and [Sound Physics Remastered](https://modrinth.com/mod/sound-physics-remastered)
-1. Donwload the add-on from Modrinth
+1. Donwload the add-on from [Modrinth](https://modrinth.com/mod/pv-addon-soundphysics/)
 1. Drop it into the `~/mods` folder
