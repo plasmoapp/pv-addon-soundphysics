@@ -37,7 +37,7 @@ import java.util.Map;
         id = "pv-addon-soundphysics",
         name = "gui.plasmovoice.soundphysics",
         scope = AddonLoaderScope.CLIENT,
-        version = "1.0.0",
+        version = "1.0.1",
         authors = {"Apehum"},
         dependencies = {
                 @Dependency(id = "sound_physics_remastered", mod = true)
