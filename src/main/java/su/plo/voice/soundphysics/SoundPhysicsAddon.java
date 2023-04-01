@@ -21,12 +21,11 @@ import su.plo.voice.api.client.audio.device.OutputDevice;
 import su.plo.voice.api.client.audio.device.source.AlSource;
 import su.plo.voice.api.client.audio.source.LoopbackSource;
 import su.plo.voice.api.client.config.addon.AddonConfig;
-import su.plo.voice.api.client.event.audio.capture.AudioCaptureEvent;
+import su.plo.voice.api.client.event.audio.capture.AudioCaptureProcessedEvent;
 import su.plo.voice.api.client.event.audio.device.DeviceOpenEvent;
 import su.plo.voice.api.client.event.audio.device.source.AlSourceClosedEvent;
 import su.plo.voice.api.client.event.audio.device.source.AlSourceWriteEvent;
 import su.plo.voice.api.event.EventSubscribe;
-import su.plo.voice.api.util.AudioUtil;
 import su.plo.voice.proto.data.pos.Pos3d;
 
 import java.lang.reflect.InvocationTargetException;
@@ -38,7 +37,7 @@ import java.util.Map;
         id = "pv-addon-soundphysics",
         name = "gui.plasmovoice.soundphysics",
         scope = AddonLoaderScope.CLIENT,
-        version = "1.0.0",
+        version = "1.0.1",
         authors = {"Apehum"},
         dependencies = {
                 @Dependency(id = "sound_physics_remastered", mod = true)
@@ -175,20 +174,14 @@ public final class SoundPhysicsAddon implements AddonInitializer {
     }
 
     @EventSubscribe
-    public void onAudioCapture(@NotNull AudioCaptureEvent event) {
+    public void onAudioCaptureProcessed(@NotNull AudioCaptureProcessedEvent event) {
         if (!isEnabled() || !isMicrophoneReverbEnabled() || soundPhysicsReverb == null) return;
 
         if (voiceClient.getActivationManager().getActivations()
                 .stream()
+                .filter(ClientActivation::isProximity)
                 .noneMatch(ClientActivation::isActive)
         ) return;
-
-        boolean isStereo = event.getDevice().getFormat().getChannels() == 2;
-
-        if (loopbackSource != null && loopbackSource.isStereo() != isStereo) {
-            loopbackSource.close();
-            this.loopbackSource = null;
-        }
 
         if (loopbackSource == null) {
             try {
@@ -203,17 +196,7 @@ public final class SoundPhysicsAddon implements AddonInitializer {
             }
         }
 
-        short[] samples = new short[event.getSamples().length];
-        System.arraycopy(event.getSamples(), 0, samples, 0, event.getSamples().length);
-
-        if (isStereo) {
-            samples = AudioUtil.convertToMonoShorts(samples);
-        }
-
-        samples = event.getDevice().processFilters(
-                samples,
-                (filter) -> isStereo && filter.getName().equals("stereo_to_mono")
-        );
+        short[] samples = event.getOrProcessSamples();
         loopbackSource.write(samples);
     }
 
