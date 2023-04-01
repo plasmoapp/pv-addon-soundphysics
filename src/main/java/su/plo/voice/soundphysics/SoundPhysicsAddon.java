@@ -2,7 +2,6 @@ package su.plo.voice.soundphysics;
 
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
-import gg.essential.universal.wrappers.UPlayer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -277,11 +276,27 @@ public final class SoundPhysicsAddon implements AddonInitializer {
     }
 
     private Pos3d setPlayerPosition(Pos3d position) {
-        if (!UPlayer.hasPlayer()) return position;
+        Class<?> uPlayer;
+        try {
+            uPlayer = Class.forName("gg.essential.universal.wrappers.UPlayer");
+        } catch (Exception ignored) {
+            try {
+                uPlayer = Class.forName("su.plo.voice.universal.wrappers.UPlayer");
+            } catch (Exception ignored1) {
+                return position;
+            }
+        }
 
-        position.setX(UPlayer.getPosX());
-        position.setY(UPlayer.getPosY());
-        position.setZ(UPlayer.getPosZ());
+        try {
+            boolean hasPlayer = (boolean) uPlayer.getMethod("hasPlayer").invoke(null);
+
+            if (!hasPlayer) return position;
+
+            position.setX((double) uPlayer.getMethod("getPosX").invoke(null));
+            position.setY((double) uPlayer.getMethod("getPosY").invoke(null));
+            position.setZ((double) uPlayer.getMethod("getPosZ").invoke(null));
+        } catch (Exception ignored) {
+        }
 
         return position;
     }
