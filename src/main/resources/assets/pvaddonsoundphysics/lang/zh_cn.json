@@ -1,0 +1,9 @@
+{
+    "gui.plasmovoice.soundphysics": "物理声效",
+ 
+    "gui.plasmovoice.soundphysics.enabled": "启用",
+ 
+    "gui.plasmovoice.soundphysics.mic_reverb": "麦克风混响",
+    "gui.plasmovoice.soundphysics.mic_reverb.tooltip": "讲话时你会听到麦克风的混响",
+    "gui.plasmovoice.soundphysics.mic_reverb_volume": "麦克风混响音量"
+}
