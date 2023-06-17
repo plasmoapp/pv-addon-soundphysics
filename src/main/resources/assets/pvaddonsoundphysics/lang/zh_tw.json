@@ -1,0 +1,9 @@
+{
+    "gui.plasmovoice.soundphysics": "物理聲效",
+ 
+    "gui.plasmovoice.soundphysics.enabled": "啟用",
+ 
+    "gui.plasmovoice.soundphysics.mic_reverb": "麥克風混響",
+    "gui.plasmovoice.soundphysics.mic_reverb.tooltip": "講話時你會聽到麥克風的混響",
+    "gui.plasmovoice.soundphysics.mic_reverb_volume": "麥克風混響音量"
+}
