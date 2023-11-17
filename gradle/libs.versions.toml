@@ -1,0 +1,21 @@
+[versions]
+kotlin = "1.8.22"
+annotations = "23.0.0"
+
+pv = "2.1.0-SNAPSHOT"
+
+pv-gradle-plugin = "1.0.2-SNAPSHOT"
+
+essential = "0.1.18"
+universalcraft = "254"
+
+[libraries]
+annotations  = { module = "org.jetbrains:annotations", version.ref = "annotations" }
+universalcraft = { module = "gg.essential:universalcraft-1.8.9-forge", version.ref = "universalcraft" }
+
+pv = { module = "su.plo.voice.api:client", version.ref = "pv" }
+
+[plugins]
+essential-defaults = { id = "gg.essential.defaults", version.ref = "essential" }
+pv-entrypoints = { id = "su.plo.voice.plugin.entrypoints", version.ref = "pv-gradle-plugin" }
+pv-java-templates = { id = "su.plo.voice.plugin.java-templates", version.ref = "pv-gradle-plugin" }

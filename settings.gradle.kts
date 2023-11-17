@@ -2,10 +2,10 @@ pluginManagement {
     repositories {
         gradlePluginPortal()
         mavenCentral()
-        mavenLocal()
 
         maven("https://repo.essential.gg/repository/maven-public")
-        maven("https://repo.plo.su")
+        maven("https://repo.plasmoverse.com/releases")
+        maven("https://repo.plasmoverse.com/snapshots")
         maven("https://jitpack.io")
         maven("https://maven.fabricmc.net")
         maven("https://maven.minecraftforge.net")

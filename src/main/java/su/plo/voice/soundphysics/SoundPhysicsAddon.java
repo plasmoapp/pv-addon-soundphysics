@@ -1,19 +1,20 @@
 package su.plo.voice.soundphysics;
 
-import com.google.common.collect.Maps;
-import com.google.inject.Inject;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import su.plo.config.entry.BooleanConfigEntry;
 import su.plo.config.entry.DoubleConfigEntry;
+import su.plo.slib.api.chat.component.McTextComponent;
+import su.plo.slib.api.logging.McLazyLogger;
+import su.plo.slib.api.logging.McLoggerFactory;
+import su.plo.slib.api.position.Pos3d;
 import su.plo.voice.api.addon.AddonInitializer;
 import su.plo.voice.api.addon.AddonLoaderScope;
+import su.plo.voice.api.addon.InjectPlasmoVoice;
 import su.plo.voice.api.addon.annotation.Addon;
 import su.plo.voice.api.addon.annotation.Dependency;
 import su.plo.voice.api.client.PlasmoVoiceClient;
 import su.plo.voice.api.client.audio.capture.ClientActivation;
-import su.plo.voice.api.client.audio.device.AlAudioDevice;
+import su.plo.voice.api.client.audio.device.AlContextAudioDevice;
 import su.plo.voice.api.client.audio.device.DeviceException;
 import su.plo.voice.api.client.audio.device.DeviceType;
 import su.plo.voice.api.client.audio.device.OutputDevice;
@@ -25,33 +26,33 @@ import su.plo.voice.api.client.event.audio.device.DeviceOpenEvent;
 import su.plo.voice.api.client.event.audio.device.source.AlSourceClosedEvent;
 import su.plo.voice.api.client.event.audio.device.source.AlSourceWriteEvent;
 import su.plo.voice.api.event.EventSubscribe;
-import su.plo.voice.proto.data.pos.Pos3d;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Addon(
         id = "pv-addon-soundphysics",
         name = "gui.plasmovoice.soundphysics",
         scope = AddonLoaderScope.CLIENT,
-        version = "1.0.1",
+        version = BuildConstants.VERSION,
         authors = {"Apehum"},
         dependencies = {
-                @Dependency(id = "sound_physics_remastered", mod = true)
+                @Dependency(id = "sound_physics_remastered")
         }
 )
 public final class SoundPhysicsAddon implements AddonInitializer {
 
-    private static final Logger LOGGER = LogManager.getLogger();
+    private static final McLazyLogger LOGGER = McLoggerFactory.createLogger("SoundPhysicsAddon");
 
-    private final Map<AlSource, Long> lastCalculated = Maps.newConcurrentMap();
-    private final Map<AlSource, float[]> lastPosition = Maps.newConcurrentMap();
+    private final Map<AlSource, Long> lastCalculated = new ConcurrentHashMap<>();
+    private final Map<AlSource, float[]> lastPosition = new ConcurrentHashMap<>();
     private final Pos3d playerPosition = new Pos3d();
     private final Pos3d lastPlayerPosition = new Pos3d();
 
-    @Inject
+    @InjectPlasmoVoice
     private PlasmoVoiceClient voiceClient;
     private AddonConfig config;
 
@@ -68,7 +69,6 @@ public final class SoundPhysicsAddon implements AddonInitializer {
     private BooleanConfigEntry enabledEntry;
     private BooleanConfigEntry microphoneReverbEnabledEntry;
     private DoubleConfigEntry microphoneReverbVolumeEntry;
-
 
     @Override
     public void onAddonInitialize() {
@@ -124,7 +124,8 @@ public final class SoundPhysicsAddon implements AddonInitializer {
         config.clear();
 
         this.enabledEntry = config.addToggle(
-                "gui.plasmovoice.soundphysics.enabled",
+                "enabled",
+                McTextComponent.translatable("gui.plasmovoice.soundphysics.enabled"),
                 null,
                 true
         );
@@ -136,14 +137,16 @@ public final class SoundPhysicsAddon implements AddonInitializer {
 
         if (soundPhysicsReverb != null) {
             this.microphoneReverbEnabledEntry = config.addToggle(
-                    "gui.plasmovoice.soundphysics.mic_reverb",
-                    "gui.plasmovoice.soundphysics.mic_reverb.tooltip",
+                    "mic_reverb",
+                    McTextComponent.translatable("gui.plasmovoice.soundphysics.mic_reverb"),
+                    McTextComponent.translatable("gui.plasmovoice.soundphysics.mic_reverb.tooltip"),
                     true
             );
             microphoneReverbEnabledEntry.addChangeListener(this::onReverbToggle);
 
             this.microphoneReverbVolumeEntry = config.addVolumeSlider(
-                    "gui.plasmovoice.soundphysics.mic_reverb_volume",
+                    "mic_reverb_volume",
+                    McTextComponent.translatable("gui.plasmovoice.soundphysics.mic_reverb_volume"),
                     null,
                     "%",
                     1D, 0D, 2D
@@ -153,7 +156,7 @@ public final class SoundPhysicsAddon implements AddonInitializer {
 
     @EventSubscribe
     public void onDeviceOpen(@NotNull DeviceOpenEvent event) {
-        if (!(event.getDevice() instanceof AlAudioDevice) ||
+        if (!(event.getDevice() instanceof AlContextAudioDevice) ||
                 !(event.getDevice() instanceof OutputDevice) ||
                 !isEnabled()
         ) return;
@@ -195,7 +198,7 @@ public final class SoundPhysicsAddon implements AddonInitializer {
             }
         }
 
-        short[] samples = event.getOrProcessSamples();
+        short[] samples = event.getProcessed().getSamples(false);
         loopbackSource.write(samples);
     }
 
@@ -217,8 +220,8 @@ public final class SoundPhysicsAddon implements AddonInitializer {
             alSource.getFloatArray(0x1004, position); // AL_POSITION
 
             if (loopbackSource != null &&
-                    loopbackSource.getSourceGroup().isPresent() &&
-                    loopbackSource.getSourceGroup().get().getSources().contains(alSource)
+                    loopbackSource.getSource().isPresent() &&
+                    loopbackSource.getSource().get().equals(alSource)
             ) {
                 soundPhysicsUpdate(alSource, lastPosition, position, soundPhysicsReverb);
             } else {
@@ -304,19 +307,18 @@ public final class SoundPhysicsAddon implements AddonInitializer {
     private void onToggle(boolean enabled) {
         voiceClient.getConfig().getVoice().getSoundOcclusion().setDisabled(enabled);
 
-        voiceClient.getDeviceManager().getDevices(DeviceType.OUTPUT).forEach((device) -> {
-            if (device instanceof AlAudioDevice) {
-                try {
-                    device.reload();
-                    if (loopbackSource != null) {
-                        loopbackSource.close();
-                        this.loopbackSource = null;
+        voiceClient.getDeviceManager().getOutputDevice()
+                .ifPresent(device -> {
+                    try {
+                        device.reload();
+                        if (loopbackSource != null) {
+                            loopbackSource.close();
+                            this.loopbackSource = null;
+                        }
+                    } catch (DeviceException e) {
+                        LOGGER.warn("Failed to reload device", e);
                     }
-                } catch (DeviceException e) {
-                    LOGGER.warn("Failed to reload device", e);
-                }
-            }
-        });
+                });
     }
 
     private void onReverbToggle(boolean enabled) {

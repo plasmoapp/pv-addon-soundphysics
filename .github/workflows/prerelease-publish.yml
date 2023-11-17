@@ -1,0 +1,38 @@
+name: Publish
+
+on:
+  push:
+    branches:
+      - v1.1
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up JDK
+      uses: actions/setup-java@v3
+      with:
+        distribution: temurin
+        java-version: |
+          8
+          16
+          17
+
+    - name: Build with Gradle
+      uses: gradle/gradle-build-action@v2
+      with:
+        arguments: build
+
+    - name: Publish to GitHub
+      uses: Apehum/mc-publish@v1.1
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        github-generate-changelog: true
+        github-prerelease: true
+        changelog-file: changelog.md
