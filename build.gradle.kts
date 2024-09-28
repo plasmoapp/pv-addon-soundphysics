@@ -1,9 +1,11 @@
 import gg.essential.gradle.multiversion.StripReferencesTransform.Companion.registerStripReferencesAttribute
+import java.net.URI
 
 
 plugins {
     java
     kotlin("jvm") version(libs.versions.kotlin.get())
+    alias(libs.plugins.crowdin)
     alias(libs.plugins.essential.defaults)
     alias(libs.plugins.pv.java.templates)
     alias(libs.plugins.pv.entrypoints)
@@ -31,7 +33,22 @@ repositories {
     maven("https://repo.essential.gg/repository/maven-public")
 }
 
+crowdin {
+    url = URI.create("https://github.com/plasmoapp/plasmo-voice-crowdin/archive/refs/heads/addons.zip").toURL()
+    sourceFileName = "client/soundphysics.json"
+    resourceDir = "assets/pvaddonsoundphysics/lang"
+}
+
 tasks {
+    jar {
+        enabled = false
+    }
+
+    shadowJar {
+        configurations = listOf(project.configurations.shadow.get())
+        archiveClassifier.set("")
+    }
+
     java {
         toolchain.languageVersion.set(JavaLanguageVersion.of(8))
     }
