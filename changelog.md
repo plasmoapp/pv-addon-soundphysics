@@ -1,2 +1,2 @@
-- Plasmo Voice 2.1.x support. This version supports only PV 2.1+, if you're using PV 2.0.x, use 1.0.x versions of the addon.
-- Mod Menu translation strings
+- Update to Plasmo Voice 2.1.0. This version is not compatible with PV 2.0.x.
+- Mod Menu translation strings.
