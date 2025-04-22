@@ -30,10 +30,9 @@ jobs:
     - name: Build with Gradle
       run: ./gradlew build
 
-    - name: Publish to GitHub
-      uses: Apehum/mc-publish@v1.1
+    - uses: actions/upload-artifact@v4
       with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        github-generate-changelog: true
-        github-prerelease: true
-        changelog-file: changelog.md
+        name: pv-addon-lavaplayer-lib
+        path: |
+          build/libs/*.jar
+          !build/libs/*-@(sources).jar
