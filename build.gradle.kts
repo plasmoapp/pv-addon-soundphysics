@@ -20,6 +20,8 @@ dependencies {
 
     compileOnly(libs.pv)
 
+    compileOnly("maven.modrinth:sound-physics-remastered:fabric-1.20.1-1.4.12")
+
     compileOnly("gg.essential:universalcraft-1.8.9-forge:254") {
         attributes { attribute(common, true) }
     }
@@ -31,6 +33,15 @@ repositories {
     maven("https://repo.plasmoverse.com/releases")
     maven("https://repo.plasmoverse.com/snapshots")
     maven("https://repo.essential.gg/repository/maven-public")
+
+    exclusiveContent {
+        forRepository {
+            maven("https://api.modrinth.com/maven")
+        }
+        filter {
+            includeGroup("maven.modrinth")
+        }
+    }
 }
 
 crowdin {
@@ -50,6 +61,6 @@ tasks {
     }
 
     java {
-        toolchain.languageVersion.set(JavaLanguageVersion.of(8))
+        toolchain.languageVersion.set(JavaLanguageVersion.of(17))
     }
 }

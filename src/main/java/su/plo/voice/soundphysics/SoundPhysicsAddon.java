@@ -16,7 +16,6 @@ import su.plo.voice.api.client.PlasmoVoiceClient;
 import su.plo.voice.api.client.audio.capture.ClientActivation;
 import su.plo.voice.api.client.audio.device.AlContextAudioDevice;
 import su.plo.voice.api.client.audio.device.DeviceException;
-import su.plo.voice.api.client.audio.device.DeviceType;
 import su.plo.voice.api.client.audio.device.OutputDevice;
 import su.plo.voice.api.client.audio.device.source.AlSource;
 import su.plo.voice.api.client.audio.source.LoopbackSource;
@@ -331,7 +330,7 @@ public final class SoundPhysicsAddon implements AddonInitializer {
     }
 
     private boolean isEnabled() {
-        return enabledEntry != null && enabledEntry.value();
+        return enabledEntry != null && enabledEntry.value() && SoundPhysicsModConfig.isEnabled();
     }
 
     private boolean isMicrophoneReverbEnabled() {
