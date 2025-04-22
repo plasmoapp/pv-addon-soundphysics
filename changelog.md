@@ -1,0 +1,2 @@
+- Fix microphone reverb not working when changing servers [#16](https://github.com/plasmoapp/pv-addon-soundphysics/pull/16).
+- Fixed an issue where you can hear yourself if sound physics is disabled in the sound physics' mod's menu.  
