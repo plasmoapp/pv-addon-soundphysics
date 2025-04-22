@@ -185,7 +185,7 @@ public final class SoundPhysicsAddon implements AddonInitializer {
                 .noneMatch(ClientActivation::isActive)
         ) return;
 
-        if (loopbackSource == null) {
+        if (loopbackSource == null || loopbackSource.isClosed()) {
             try {
                 this.loopbackSource = voiceClient.getSourceManager().createLoopbackSource(false);
                 if (microphoneReverbVolumeEntry != null) {
