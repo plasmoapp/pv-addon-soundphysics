@@ -26,6 +26,7 @@ import su.plo.voice.api.client.event.audio.device.source.AlSourceClosedEvent;
 import su.plo.voice.api.client.event.audio.device.source.AlSourceWriteEvent;
 import su.plo.voice.api.event.EventSubscribe;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -62,6 +63,7 @@ public final class SoundPhysicsAddon implements AddonInitializer {
     private Method soundPhysicsReverb;
 
     private Object masterCategory;
+    private Object soundName;
 
     private LoopbackSource loopbackSource;
 
@@ -92,6 +94,19 @@ public final class SoundPhysicsAddon implements AddonInitializer {
             Class<?> category = soundPhysicsSetLastCategoryAndName.getParameterTypes()[0];
             Object[] values = (Object[]) category.getMethod("values").invoke(null);
             this.masterCategory = values[0];
+
+            Class<?> sound = soundPhysicsSetLastCategoryAndName.getParameterTypes()[1];
+            if (sound == String.class) {
+                soundName = "voicechat";
+            } else {
+                // ResourceLocation constructor
+                Constructor<?> constructor = sound.getDeclaredConstructor(String.class, String.class);
+                constructor.setAccessible(true);
+                try {
+                    soundName = constructor.newInstance("voicechat", "voicechat");
+                } catch (ReflectiveOperationException ignored) {
+                }
+            }
 
             try {
                 soundPhysicsSetEnvironment = clazz.getMethod(
@@ -239,7 +254,9 @@ public final class SoundPhysicsAddon implements AddonInitializer {
                     );
                 }
 
-                soundPhysicsSetLastCategoryAndName.invoke(null, masterCategory, "voicechat");
+                if (masterCategory != null && soundName != null) {
+                    soundPhysicsSetLastCategoryAndName.invoke(null, masterCategory, soundName);
+                }
                 soundPhysicsMethod.invoke(
                         null,
                         (double) position[0],
